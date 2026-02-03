@@ -27,4 +27,4 @@ export const useAccountsStore = defineStore('accounts', () => {
   }
 
   return { accounts, addAccount, removeAccount, updateAccount }
-})
+}, {persist: true})
