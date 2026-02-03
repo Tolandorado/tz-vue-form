@@ -38,11 +38,13 @@ const handleAddAccount = () => {
 <style scoped>
 .container {
   display: flex;
+  /* justify-content: center; */
   flex-direction: column;
   height: 100vh;
-  margin: 2em 15em 0em;
+  margin: 2em auto;
   gap: 2em;
   min-width: 460px;
+  max-width: 1200px;
 }
 
 .info {

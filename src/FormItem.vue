@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { Form } from '@primevue/forms'
-import { Password, InputText, Select, Button } from 'primevue'
+import { Password, InputText, Select, Button, Textarea } from 'primevue'
 import { stringToTags, tagsToString } from './util/tagConvert'
 import { debounce } from './util/debounceFn'
 import { useAccountsStore } from './stores/accounts'
@@ -61,7 +61,13 @@ const handleRemove = () => {
 <template>
   <Form>
     <div class="form-container">
-      <InputText type="text" placeholder="Метки" class="form-item" v-model="displayTags" />
+      <Textarea
+        autoResize
+        type="text"
+        placeholder="Метки"
+        class="form-item"
+        v-model="displayTags"
+      />
       <Select
         :options="options"
         optionLabel="label"
@@ -94,6 +100,7 @@ const handleRemove = () => {
 <style scoped>
 .form-container {
   display: flex;
+  align-items: flex-start;
   gap: 1vw;
 }
 
