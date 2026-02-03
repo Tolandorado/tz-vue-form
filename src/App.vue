@@ -61,6 +61,8 @@ const handleAddAccount = () => {
 }
 
 .list-container {
+  display: flex;
+  flex-direction: column;
   height: 100vh;
   gap: 1em;
 }
