@@ -15,7 +15,7 @@ export const useAccountsStore = defineStore('accounts', () => {
     });
   }
   
-  function updateAccount(accountId: number, updatedAccount: Partial<TAccount>) {
+  function updateAccount(accountId: number, updatedAccount: Partial<Omit<TAccount, 'id'>>) {
     const account = accounts.value.find(account => account.id === accountId);
     if (!account) return
 
