@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { Form } from '@primevue/forms'
-import { stringToTags } from './util/tagConvert'
+import { Password, InputText, Select, Button } from 'primevue'
+import { stringToTags, tagsToString } from './util/tagConvert'
 import { debounce } from './util/debounceFn'
 import { useAccountsStore } from './stores/accounts'
-import Password from 'primevue/password'
-import InputText from 'primevue/inputtext'
-import Select from 'primevue/select'
-import Button from 'primevue/button'
 import type { TAccount } from './types/account.type'
 
 const props = defineProps<{
@@ -15,8 +12,7 @@ const props = defineProps<{
 }>()
 
 const accountsStore = useAccountsStore()
-
-const account = ref<TAccount>(props.data)
+const account = ref<TAccount>({ ...props.data })
 
 watch(
   () => account.value.type,
@@ -24,7 +20,6 @@ watch(
     if (newType !== 'local') account.value.password = null
   }
 )
-
 watch(
   account,
   (newAccount) => {
@@ -37,6 +32,12 @@ const isShow = computed(() => account.value.type === 'local')
 const inputWidthStyle = computed(() => ({
   width: isShow.value ? '9vw' : '19vw',
 }))
+const displayTags = computed({
+  get: () => tagsToString(account.value.tags),
+  set: (newValue: string) => {
+    account.value.tags = stringToTags(newValue)
+  },
+})
 
 const options = [
   { label: 'Локальная', value: 'local' },
@@ -50,12 +51,7 @@ const debouncedUpdate = debounce((account: TAccount) => {
     login: account.login,
     password: account.password,
   })
-}, 900)
-
-const handleTagsInput = (e: Event) => {
-  const target = e.target as HTMLInputElement
-  account.value.tags = stringToTags(target.value)
-}
+})
 
 const handleRemove = () => {
   accountsStore.removeAccount(account.value.id)
@@ -65,7 +61,7 @@ const handleRemove = () => {
 <template>
   <Form>
     <div class="form-container">
-      <InputText type="text" placeholder="Метки" class="form-item" @input="handleTagsInput" />
+      <InputText type="text" placeholder="Метки" class="form-item" v-model="displayTags" />
       <Select
         :options="options"
         optionLabel="label"
