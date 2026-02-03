@@ -1,9 +1,9 @@
 import { ref, computed, type Ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Account } from '@/types/account.type';
+import type { TAccount } from '@/types/account.type';
 
 export const useAccountsStore = defineStore('accounts', () => {
-  const accounts: Ref<Account[]> = ref([]);
+  const accounts: Ref<TAccount[]> = ref([]);
 
   function addAccount() {
     accounts.value.push({
@@ -15,7 +15,7 @@ export const useAccountsStore = defineStore('accounts', () => {
     });
   }
 
-  function changeAccountField<T extends keyof Account>(accountId: number, field: T, value: Account[T]) {
+  function changeAccountField<T extends keyof TAccount>(accountId: number, field: T, value: TAccount[T]) {
     const account = accounts.value.find(account => account.id === accountId);
     if (account) {
       account[field] = value;
