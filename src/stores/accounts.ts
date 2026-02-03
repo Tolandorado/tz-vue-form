@@ -8,23 +8,23 @@ export const useAccountsStore = defineStore('accounts', () => {
   function addAccount() {
     accounts.value.push({
       id: accounts.value.length + 1,
-      marks: [],
+      tags: [],
       type: null,
       login: null,
       password: null,
     });
   }
-
-  function changeAccountField<T extends keyof TAccount>(accountId: number, field: T, value: TAccount[T]) {
+  
+  function updateAccount(accountId: number, updatedAccount: Partial<TAccount>) {
     const account = accounts.value.find(account => account.id === accountId);
-    if (account) {
-      account[field] = value;
-    }
+    if (!account) return
+
+    Object.assign(account, updatedAccount)
   }
 
   function removeAccount(accountId: number) {
     accounts.value = accounts.value.filter(account => account.id !== accountId);
   }
 
-  return { accounts, addAccount, changeAccountField, removeAccount }
+  return { accounts, addAccount, removeAccount, updateAccount }
 })
