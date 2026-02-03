@@ -1,12 +1,12 @@
 export type TAccount = {
     id: number
-    marks: Mark[]
+    tags: TTag[]
     type: EAccountType | null
     login: string | null
     password: string | null
 }
 
-export type Mark = {
+export type TTag = {
     text: string
 }
 
