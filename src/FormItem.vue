@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Form } from '@primevue/forms'
 import { Password, InputText, Select, Button, Textarea } from 'primevue'
 import { stringToTags, tagsToString } from './util/tagConvert'
@@ -63,7 +63,11 @@ watch(
   (newAccount) => {
     const result = accountFormSchema.safeParse(newAccount)
 
-    if (!result.success) return
+    if (!result.success) {
+      console.log('Ошибка валидации \n', result.error)
+      return
+    }
+    console.log('Игнорируем ошибку пароля для не-local типа')
     debouncedUpdate(newAccount)
   },
   { deep: true }
