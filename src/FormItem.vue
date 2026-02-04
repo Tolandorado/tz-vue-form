@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { Form } from '@primevue/forms'
 import { Password, InputText, Select, Button, Textarea } from 'primevue'
 import { stringToTags, tagsToString } from './util/tagConvert'
 import { debounce } from './util/debounceFn'
 import { useAccountsStore } from './stores/accounts'
+import { z } from 'zod'
 import type { TAccount } from './types/account.type'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
 
 const props = defineProps<{
   data: TAccount
@@ -14,23 +16,21 @@ const props = defineProps<{
 const accountsStore = useAccountsStore()
 const account = ref<TAccount>({ ...props.data })
 
-watch(
-  () => account.value.type,
-  (newType) => {
-    if (newType !== 'local') account.value.password = null
-  }
-)
-watch(
-  account,
-  (newAccount) => {
-    debouncedUpdate(newAccount)
-  },
-  { deep: true }
-)
+const accountFormSchema = z.object({
+  login: z.string().min(1, 'Логин обязателен'),
+  type: z.enum(['local', 'LDAP']),
+  password: z.string().min(1, 'Пароль обязателен').nullable(),
+  tags: z.array(z.object({ text: z.string() })).nullable(),
+})
+const resolver = zodResolver(accountFormSchema)
+const options = [
+  { label: 'Локальная', value: 'local' },
+  { label: 'LDAP', value: 'LDAP' },
+]
 
-const isShow = computed(() => account.value.type === 'local')
+const isLocal = computed(() => account.value.type === 'local')
 const inputWidthStyle = computed(() => ({
-  width: isShow.value ? '9vw' : '19vw',
+  width: isLocal.value ? '9vw' : '19vw',
 }))
 const displayTags = computed({
   get: () => tagsToString(account.value.tags),
@@ -38,11 +38,6 @@ const displayTags = computed({
     account.value.tags = stringToTags(newValue)
   },
 })
-
-const options = [
-  { label: 'Локальная', value: 'local' },
-  { label: 'LDAP', value: 'LDAP' },
-]
 
 const debouncedUpdate = debounce((account: TAccount) => {
   accountsStore.updateAccount(account.id, {
@@ -56,19 +51,39 @@ const debouncedUpdate = debounce((account: TAccount) => {
 const handleRemove = () => {
   accountsStore.removeAccount(account.value.id)
 }
+
+watch(
+  () => account.value.type,
+  (newType) => {
+    newType === 'LDAP' || null ? (account.value.password = null) : (account.value.password = '')
+  }
+)
+watch(
+  account,
+  (newAccount) => {
+    const result = accountFormSchema.safeParse(newAccount)
+
+    if (!result.success) return
+    debouncedUpdate(newAccount)
+  },
+  { deep: true }
+)
 </script>
 
 <template>
-  <Form>
+  <Form :resolver="resolver" :validateOnValueUpdate="true">
     <div class="form-container">
       <Textarea
+        rows="1"
         autoResize
         type="text"
         placeholder="Метки"
         class="form-item"
         v-model="displayTags"
+        :maxlength="50"
       />
       <Select
+        name="type"
         :options="options"
         optionLabel="label"
         class="form-item"
@@ -82,14 +97,18 @@ const handleRemove = () => {
         placeholder="Логин"
         :style="inputWidthStyle"
         v-model="account.login"
+        :maxlength="100"
       />
       <Password
+        name="password"
+        v-if="isLocal"
         :feedback="false"
         toggleMask
         placeholder="Пароль"
-        v-if="isShow"
         :inputStyle="inputWidthStyle"
         v-model="account.password"
+        :maxlength="100"
+        :invalid="isLocal && account.password === ''"
       />
       <Button severity="secondary" icon="pi pi-trash" @click="handleRemove" />
     </div>
