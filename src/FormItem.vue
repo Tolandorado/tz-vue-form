@@ -9,6 +9,11 @@ import { z } from 'zod'
 import type { TAccount } from './types/account.type'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 
+const options = [
+  { label: 'Локальная', value: 'local' },
+  { label: 'LDAP', value: 'LDAP' },
+]
+
 const props = defineProps<{
   data: TAccount
 }>()
@@ -23,10 +28,6 @@ const accountFormSchema = z.object({
   tags: z.array(z.object({ text: z.string() })).nullable(),
 })
 const resolver = zodResolver(accountFormSchema)
-const options = [
-  { label: 'Локальная', value: 'local' },
-  { label: 'LDAP', value: 'LDAP' },
-]
 
 const isLocal = computed(() => account.value.type === 'local')
 const inputWidthStyle = computed(() => ({
